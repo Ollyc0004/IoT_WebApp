@@ -125,8 +125,23 @@ $json_chart_data = json_encode($chart_output_array);
           legend: { position: 'bottom' }, // Position of the legend
           hAxis: { // Horizontal axis (Time)
             title: 'Time',
-            format: 'MMM d, HH:mm', // Example format: May 6, 22:00
-            slantedText: true,      // Slant text to prevent overlap
+            format: 'MMM d, HH:mm', // Format for labels on major ticks (e.g., May 6, 22:00)
+            gridlines: {
+              count: -1, // Let Google Charts automatically determine the number of major gridlines
+              units: { // Define preferred units for major gridlines and their label formats
+                days: {format: ['MMM d']},     // e.g., "May 6"
+                hours: {format: ['HH:mm', 'ha']}, // e.g., "14:00", "2PM"
+                minutes: {format: ['HH:mm', ':mm']} // e.g., "14:30", ":30" (if hour is already clear)
+              }
+            },
+            minorGridlines: {
+              // This is key: request minor gridlines at minute intervals
+              // These will appear between major gridlines if major gridlines are spaced further apart than 1 minute
+              units: {
+                minutes: {} // Show minor gridlines for each minute. No format needed as they aren't typically labeled.
+              }
+            },
+            slantedText: true,      // Slant text to prevent overlap if labels are dense
             slantedTextAngle: 45    // Angle of slant
           },
           vAxis: { // Vertical axis (Temperature)
@@ -140,7 +155,7 @@ $json_chart_data = json_encode($chart_output_array);
             duration: 1000, // Animation duration in milliseconds
             easing: 'out',  // Easing function for the animation
           },
-          explorer: { // Allows zooming and panning
+          explorer: { // Allows zooming and panning, useful for detailed time views
             actions: ['dragToZoom', 'rightClickToReset'],
             axis: 'horizontal', // Allow zooming on the horizontal axis
             keepInBounds: true,
