@@ -3,6 +3,33 @@
 // This file should contain your database connection logic ($connect variable)
 // and the runAndCheckSQL() and showError() functions.
 include_once("connect.php");
+
+// --- PHP Data Fetching for Chart ---
+$chart_data = array();
+// Add column headers for the Google Chart
+$chart_data[] = ['Reading ID / Time', 'Temperature (°C)']; // X-axis, Y-axis
+
+// SQL query to fetch data from the Readings table
+// Fetching in ASC order is usually better for time-series charts
+$sql_chart = "SELECT readingID, temp FROM Readings ORDER BY readingID ASC";
+$result_chart = runAndCheckSQL($connect, $sql_chart);
+
+if ($result_chart && mysqli_num_rows($result_chart) > 0) {
+    while ($row_chart = mysqli_fetch_assoc($result_chart)) {
+        // Add data rows: ReadingID (can be treated as a category or number) and Temperature
+        // Ensure 'temp' is a number for the chart
+        $chart_data[] = [$row_chart['readingID'], (float)$row_chart['temp']];
+    }
+    mysqli_free_result($result_chart);
+} else {
+    // Add a default data point if no data is found to prevent chart errors
+    // and to show an empty chart. Or you can handle this in JS.
+    $chart_data[] = ["No Data", 0];
+}
+
+// Convert PHP array to JSON for JavaScript
+$json_chart_data = json_encode($chart_data);
+// --- End of PHP Data Fetching ---
 ?>
 
 <!DOCTYPE html>
@@ -13,31 +40,96 @@ include_once("connect.php");
     <title>Home - Climate Control System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="BackgroundStyle.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 20px;
+        }
+        h2 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        .navbar {
+            margin-bottom: 20px;
+        }
+        /* Ensure the chart container has a defined size */
+        #temperature_line_chart {
+            width: 100%; /* Make chart responsive */
+            max-width: 900px; /* Optional: set a max width */
+            height: 500px;
+            margin: 0 auto; /* Center the chart */
+            border: 1px solid #dee2e6; /* Optional: add a border */
+            border-radius: 0.375rem; /* Rounded corners */
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            background-color: #fff; /* White background for the chart area */
+        }
+    </style>
 
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart', 'line']}); // Added 'line' for explicit line chart loading
 
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable([
-          ['Year', 'Sales', 'Expenses'],
-          ['2004',  1000,      400],
-          ['2005',  1170,      460],
-          ['2006',  660,       1120],
-          ['2007',  1030,      540]
-        ]);
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawTemperatureChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the line chart, passes in the data and
+      // draws it.
+      function drawTemperatureChart() {
+        // Use the PHP-generated JSON data
+        var dataArray = <?php echo $json_chart_data; ?>;
+
+        // Check if dataArray has meaningful data (beyond just headers or the "No Data" placeholder)
+        if (dataArray.length <= 1 || (dataArray.length === 2 && dataArray[1][0] === "No Data")) {
+            // Handle no data: display a message or an empty chart gracefully
+            document.getElementById('temperature_line_chart').innerHTML = '<div class="alert alert-info text-center m-5">No temperature data available to display in the chart.</div>';
+            return; // Exit the function if no data
+        }
+
+        var data = google.visualization.arrayToDataTable(dataArray);
 
         var options = {
-          title: 'Company Performance',
-          curveType: 'function',
-          legend: { position: 'bottom' }
+          title: 'Temperature Readings Over Time',
+          curveType: 'function', // Makes the line curved
+          legend: { position: 'bottom' },
+          hAxis: {
+            title: 'Reading Sequence / Time', // Label for X-axis
+            // If 'readingID' is not a timestamp, it will be treated as categories/numbers.
+            // For actual time-series, you'd format this axis as 'datetime'.
+          },
+          vAxis: {
+            title: 'Temperature (°C)' // Label for Y-axis
+          },
+          series: { // Customize series color if needed
+            0: { color: '#1c91c0' } // Color for the first series (temperature)
+          },
+          animation: { // Add animation on load
+            startup: true,
+            duration: 1000,
+            easing: 'out',
+          },
+          explorer: { // Allows zooming and panning
+            actions: ['dragToZoom', 'rightClickToReset'],
+            axis: 'horizontal',
+            keepInBounds: true,
+            maxZoomIn: 4.0
+          },
+          chartArea: {width: '80%', height: '70%'}, // Adjust chart area
+          pointSize: 5 // Size of the data points on the line
         };
 
-        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
-
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.LineChart(document.getElementById('temperature_line_chart'));
         chart.draw(data, options);
       }
+
+      // Redraw chart on window resize for responsiveness
+      window.addEventListener('resize', drawTemperatureChart);
+
     </script>
 </head>
 <body>
@@ -59,62 +151,24 @@ include_once("connect.php");
 </nav>
 
 <div class="container">
-    <h2>Live Temperature Readings</h2>
+    <h2>Live Temperature Readings Chart</h2>
+
+    <div id="temperature_line_chart">
+        <div class="alert alert-warning text-center m-5" role="alert">
+            Chart is loading... If it doesn't appear, please ensure JavaScript is enabled and check the console for errors.
+        </div>
+    </div>
 
     <?php
-    // SQL query to fetch data from the Readings table
-    $sql = "SELECT readingID, temp FROM Readings ORDER BY readingID DESC"; // Fetches all readings, ordered by ID descending (latest first)
+    // The HTML table code has been removed from here.
+    // You can add other content below the chart if needed.
 
-    // Execute the query using the function from connect.php
-    // $connect should be your mysqli connection variable from connect.php
-    $result = runAndCheckSQL($connect, $sql);
-
-    if ($result) {
-        // Check if there are any rows returned
-        if (mysqli_num_rows($result) > 0) {
-            echo '<div class="table-responsive rounded">'; // Added for responsiveness and to ensure border-radius applies
-            echo '<table class="table table-striped table-hover table-bordered">'; // Bootstrap table classes
-            echo '<thead class="table-light">'; // Light header
-            echo '<tr>';
-            echo '<th scope="col">Temperature (°C)</th>';
-            echo '</tr>';
-            echo '</thead>';
-            echo '<tbody>';
-
-            // Loop through each row of the result set
-            while ($row = mysqli_fetch_assoc($result)) {
-                echo '<tr>';
-                // Sanitize output to prevent XSS, though ReadingsID is likely an integer
-                echo '<td>' . htmlspecialchars($row['temp']) . '</td>';
-                echo '</tr>';
-            }
-
-            echo '</tbody>';
-            echo '</table>';
-            echo '</div>';
-        } else {
-            // If no rows are returned
-            echo '<div class="alert alert-info" role="alert">';
-            echo 'No temperature readings found in the database.';
-            echo '</div>';
-        }
-        // Free the result set
-        mysqli_free_result($result);
-    } else {
-        // If the query failed, runAndCheckSQL would have already called showError() and died.
-        // However, as a fallback or if runAndCheckSQL is modified:
-        echo '<div class="alert alert-danger" role="alert">';
-        echo 'Error fetching data from the database. Please check the connection and query.';
-        echo '</div>';
-    }
-
-    // It's good practice to close the database connection when it's no longer needed,
-    // though PHP often handles this at the end of script execution.
-    // mysqli_close($connect); // Uncomment if your connect.php doesn't handle closing.
+    // Optional: Close connection if not handled by script termination
+    // if ($connect) {
+    // mysqli_close($connect);
+    // }
     ?>
 </div>
-
-<div id="curve_chart" style="width: 900px; height: 500px"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
