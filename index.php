@@ -6,21 +6,21 @@
     <title>IoT Web Interface</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
-      /* Set the background color of the entire page to baby blue */
+      
       body {
-        background-color: #add8e6; /* Baby blue color */
-        font-family: 'Inter', sans-serif; /* Using Inter font as a default nice font */
+        background-color: #add8e6; 
+        font-family: 'Inter', sans-serif; 
       }
       .login-box {
-        max-width: 450px; /* Adjusted max-width for a slightly more compact login box */
+        max-width: 450px; 
         margin: auto;
-        background-color: #ffffff; /* White coloring for the login box */
-        padding: 30px; /* Increased padding for better spacing */
-        border-radius: 15px; /* Slightly more rounded corners */
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Enhanced box shadow for depth */
+        background-color: #ffffff; 
+        padding: 30px; 
+        border-radius: 15px; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
       }
       .login-box h2 {
-        margin-bottom: 25px; /* Added margin below the title */
+        margin-bottom: 25px; 
       }
       .btn-outline-dark {
         border-color: #343a40;
@@ -31,10 +31,10 @@
         color: #ffffff;
       }
       .form-label {
-        margin-bottom: .5rem; /* Default Bootstrap margin, ensuring consistency */
+        margin-bottom: .5rem; 
       }
       .form-control {
-        margin-bottom: 1rem; /* Added some space below form controls for better separation */
+        margin-bottom: 1rem; 
       }
     </style>
   </head>
@@ -56,7 +56,6 @@
               <div class="d-grid gap-2 mt-4"> <button type="submit" class="btn btn-outline-dark btn-block">Login</button>
               </div>
             </form>
-            <p class="text-center text-black mt-3">No account? <a href="register.php" class="text-black">Please register here</a></p>
           </div>
         </div>
       </div>
