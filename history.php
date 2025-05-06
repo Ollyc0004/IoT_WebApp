@@ -17,9 +17,8 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-link active" aria-current="page" href="home.php">Home</a>
-        <a class="nav-link" href="history.php">history</a>
+        <a class="nav-link" href="history.php">History</a>
         <a class="nav-link" href="settings.php">Settings</a>
-        <a class="nav-link disabled" aria-disabled="true">Disabled</a>
       </div>
     </div>
   </div>
