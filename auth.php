@@ -3,96 +3,85 @@ session_start(); // Start the session at the very beginning
 
 $servername = "plesk.remote.ac";
 $database = "WS371632_IoT";
-$username = "WS371632_IoT";
-$password = "!v65Rny56"; // Ensure this is kept secure and not hardcoded in production if possible
-$dbname = "WS371632_IoT"; // Database name was in $database, but mysqli constructor expects it as 4th param
+$username_db = "WS371632_IoT"; // Renamed to avoid conflict with form username
+$password_db = "!v65Rny56";
+$dbname = "WS371632_IoT";
 
 // Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username_db, $password_db, $dbname);
 
 // Check connection
 if ($conn->connect_error) {
-    // Log error to a file instead of exposing to user in production
     // error_log("Connection failed: " . $conn->connect_error);
-    die("Connection failed. Please try again later."); // User-friendly message
+    die("Connection failed. Please try again later.");
 }
 
-// Initialize variables to avoid undefined notices
 $auth_error = "";
 $login_success = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['txtEmail']) && isset($_POST['txtPass'])) {
-        $email = $_POST['txtEmail'];
-        $pass_submitted = $_POST['txtPass']; // User submitted password
+    // Check if txtUsername and txtPass are set
+    if (isset($_POST['txtUsername']) && isset($_POST['txtPass'])) {
+        $form_username = $_POST['txtUsername']; // Changed from txtEmail
+        $pass_submitted = $_POST['txtPass'];
 
         // Prepare and bind
-        // Assuming your table is named 'User' and columns are 'email' and 'password'
-        // Adjust table and column names if they are different.
-        $stmt = $conn->prepare("SELECT id, email, password FROM User WHERE email = ?");
+        // Assuming your table is 'User' and username column is 'username'
+        // and password column is 'password'. Adjust if different.
+        $stmt = $conn->prepare("SELECT id, username, email, password FROM User WHERE username = ?"); // Query by username
         if ($stmt === false) {
-            // Log error
             // error_log("Prepare failed: (" . $conn->errno . ") " . $conn->error);
             $auth_error = "An error occurred during login. Please try again later.";
         } else {
-            $stmt->bind_param("s", $email);
+            $stmt->bind_param("s", $form_username); // Bind the username from the form
             $stmt->execute();
             $result = $stmt->get_result();
 
             if ($result->num_rows === 1) {
                 $user = $result->fetch_assoc();
-                $stored_password_hash = $user['password']; // This should be a hashed password
+                $stored_password_hash = $user['password'];
 
-                // --- IMPORTANT: Password Verification ---
-                // In a real application, you MUST use password_verify()
-                // For example: if (password_verify($pass_submitted, $stored_password_hash)) {
-                // For this example, we'll do a direct comparison,
-                // but THIS IS INSECURE for plain text passwords.
-                // Replace this with proper password hashing and verification.
-
-                // **DEVELOPMENT ONLY - PLAIN TEXT PASSWORD COMPARISON (INSECURE)**
-                // if ($pass_submitted === $stored_password_hash) {
-
-                // **PRODUCTION READY - HASHED PASSWORD VERIFICATION (SECURE)**
                 if (password_verify($pass_submitted, $stored_password_hash)) {
-                    // Password is correct
                     $login_success = true;
-                    $_SESSION['user_id'] = $user['id']; // Store user ID in session
-                    $_SESSION['user_email'] = $user['email']; // Store email in session
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_username'] = $user['username']; // Store username in session
+                    // You might also want to store the email if you fetched it
+                    $_SESSION['user_email'] = $user['email'];
                     $_SESSION['loggedin'] = true;
 
-                    // Redirect to a logged-in user page (e.g., dashboard.php)
-                    header("Location: home.php"); // Create dashboard.php for logged-in users
+                    header("Location: dashboard.php");
                     exit();
                 } else {
-                    // Invalid password
-                    $auth_error = "Invalid email or password.";
+                    $auth_error = "Invalid username or password.";
                 }
             } else {
-                // No user found with that email
-                $auth_error = "Invalid email or password.";
+                $auth_error = "Invalid username or password.";
             }
             $stmt->close();
         }
     } else {
-        $auth_error = "Email and password are required.";
+        $auth_error = "Username and password are required.";
+        // It's possible only one is missing, refine this message if needed
+        if (!isset($_POST['txtUsername'])) {
+            $auth_error = "Username is required.";
+        } elseif (!isset($_POST['txtPass'])) {
+            $auth_error = "Password is required.";
+        }
     }
 }
 
 $conn->close();
 
-// If login was not successful and there's an error, redirect back to login with an error message
-// Or display the error on this page (less ideal for user experience)
 if (!$login_success && !empty($auth_error)) {
-    // You can pass the error message back to the login page via query parameter or session
     $_SESSION['login_error'] = $auth_error;
-    header("Location: login.html?error=" . urlencode($auth_error)); // Assuming your login form is login.html
+    // Ensure your login form page can display this session error
+    // For example, if your login form is login.php (or login.html parsed as php)
+    header("Location: login.php?error=" . urlencode($auth_error)); // Or whatever your login form page is
     exit();
 }
 
-// Fallback if something unexpected happens, though the above redirects should handle most cases.
 if (!$login_success) {
-    echo "Authentication failed. <a href='login.html'>Try again</a>"; // Adjust 'login.html' if your form page has a different name
+    echo "Authentication failed. <a href='login.php'>Try again</a>"; // Adjust login page name
 }
 
 ?>

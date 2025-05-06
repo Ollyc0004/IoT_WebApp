@@ -13,10 +13,10 @@
         <div class="col-md-5">
           <div class="login-box">
             <h2 class="text-center text-black">Login</h2>
-            <form method="POST" action="Auth.php">
-              <div class="mb-3">
-                <label for="email" class="form-label text-black">Email:</label>
-                <input type="email" class="form-control" id="email" placeholder="Enter email" name="txtEmail" required>
+            <form method="POST" action="auth.php">
+            <div class="mb-3">
+                <label for="username" class="form-label text-black">Username:</label>
+                <input type="text" class="form-control" id="username" placeholder="Enter username" name="txtUsername" required>
               </div>
               <div class="mb-3">
                 <label for="pwd" class="form-label text-black">Password:</label>

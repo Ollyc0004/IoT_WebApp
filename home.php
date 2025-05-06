@@ -1,3 +1,17 @@
+
+<?php
+session_start();
+
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: login.html"); // Redirect to login if not logged in
+    exit;
+}
+
+echo "Welcome, " . htmlspecialchars($_SESSION['user_email']) . "!";
+// Add your dashboard content here
+echo "<br><a href='logout.php'>Logout</a>"; // Create a logout.php script
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +22,7 @@
     <link rel="stylesheet" href="BackgroundStyle.css">
 </head>
 <body>
-
+<h1>Hello</h1>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 </body>
 </html>
