@@ -11,6 +11,7 @@ function runAndCheckSQL($connection, $sql){
     $run = mysqli_query($connection, $sql);
     if ($run) {
         if(is_array($run) || is_object($run)){
+            echo "Hello";
             return $run;
         }else{
             return true;
