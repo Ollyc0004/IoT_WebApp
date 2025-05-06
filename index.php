@@ -5,38 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IoT Web Interface</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <style>
-      
-      body {
-        background-color: #add8e6; 
-        font-family: 'Inter', sans-serif; 
-      }
-      .login-box {
-        max-width: 450px; 
-        margin: auto;
-        background-color: #ffffff; 
-        padding: 30px; 
-        border-radius: 15px; 
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
-      }
-      .login-box h2 {
-        margin-bottom: 25px; 
-      }
-      .btn-outline-dark {
-        border-color: #343a40;
-        color: #343a40;
-      }
-      .btn-outline-dark:hover {
-        background-color: #343a40;
-        color: #ffffff;
-      }
-      .form-label {
-        margin-bottom: .5rem; 
-      }
-      .form-control {
-        margin-bottom: 1rem; 
-      }
-    </style>
+    <link rel="stylesheet" href="BackgroundStyle.css">
   </head>
   <body>
     <div class="container">
