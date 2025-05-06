@@ -59,7 +59,7 @@ include_once("connect.php");
             while ($row = mysqli_fetch_assoc($result)) {
                 echo '<tr>';
                 // Sanitize output to prevent XSS, though ReadingsID is likely an integer
-                echo '<td>' . htmlspecialchars($row['Temp']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['temp']) . '</td>';
                 echo '</tr>';
             }
 
