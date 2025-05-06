@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Prepare and bind
         // Assuming your table is 'User' and username column is 'username'
         // and password column is 'password'. Adjust if different.
-        $stmt = $conn->prepare("SELECT id, username, email, password FROM User WHERE username = ?"); // Query by username
+        $stmt = $conn->prepare("SELECT id, Username, password FROM User WHERE Username = ?"); // Query by username
         if ($stmt === false) {
             // error_log("Prepare failed: (" . $conn->errno . ") " . $conn->error);
             $auth_error = "An error occurred during login. Please try again later.";
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['user_email'] = $user['email'];
                     $_SESSION['loggedin'] = true;
 
-                    header("Location: dashboard.php");
+                    header("Location: home.php");
                     exit();
                 } else {
                     $auth_error = "Invalid username or password.";
@@ -76,12 +76,12 @@ if (!$login_success && !empty($auth_error)) {
     $_SESSION['login_error'] = $auth_error;
     // Ensure your login form page can display this session error
     // For example, if your login form is login.php (or login.html parsed as php)
-    header("Location: login.php?error=" . urlencode($auth_error)); // Or whatever your login form page is
+    header("Location: index.php?error=" . urlencode($auth_error)); // Or whatever your login form page is
     exit();
 }
 
 if (!$login_success) {
-    echo "Authentication failed. <a href='login.php'>Try again</a>"; // Adjust login page name
+    echo "Authentication failed. <a href='index.php'>Try again</a>"; // Adjust login page name
 }
 
 ?>

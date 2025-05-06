@@ -1,17 +1,3 @@
-
-<?php
-session_start();
-
-if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
-    header("Location: login.html"); // Redirect to login if not logged in
-    exit;
-}
-
-echo "Welcome, " . htmlspecialchars($_SESSION['user_email']) . "!";
-// Add your dashboard content here
-echo "<br><a href='logout.php'>Logout</a>"; // Create a logout.php script
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
