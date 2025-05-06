@@ -37,7 +37,7 @@ include_once("connect.php");
 
     <?php
     // SQL query to fetch data from the Readings table
-    $sql = "SELECT ReadingsID, Temp FROM Readings ORDER BY ReadingsID DESC"; // Fetches all readings, ordered by ID descending (latest first)
+    $sql = "SELECT readingID, temp FROM Readings ORDER BY readingID DESC"; // Fetches all readings, ordered by ID descending (latest first)
 
     // Execute the query using the function from connect.php
     // $connect should be your mysqli connection variable from connect.php
@@ -50,7 +50,6 @@ include_once("connect.php");
             echo '<table class="table table-striped table-hover table-bordered">'; // Bootstrap table classes
             echo '<thead class="table-light">'; // Light header
             echo '<tr>';
-            echo '<th scope="col">Reading ID</th>';
             echo '<th scope="col">Temperature (°C)</th>';
             echo '</tr>';
             echo '</thead>';
@@ -60,7 +59,6 @@ include_once("connect.php");
             while ($row = mysqli_fetch_assoc($result)) {
                 echo '<tr>';
                 // Sanitize output to prevent XSS, though ReadingsID is likely an integer
-                echo '<td>' . htmlspecialchars($row['ReadingsID']) . '</td>';
                 echo '<td>' . htmlspecialchars($row['Temp']) . '</td>';
                 echo '</tr>';
             }
